@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CourseTracker | Cursos</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="./js/store.js" defer></script>
+    <script src="./js/catalog.js" defer></script>
+  </head>
+  <body data-page="catalog">
+    <header class="site-header">
+      <div class="container header-row">
+        <a class="brand" href="./index.html">CourseTracker</a>
+        <nav class="site-nav" aria-label="Principal">
+          <a class="nav-link" href="./index.html">Inicio</a>
+          <a class="nav-link is-active" href="./courses.html">Cursos</a>
+          <a class="nav-link" href="./form.html">Nuevo curso</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="intro-block">
+        <p class="section-kicker">Catalogo local</p>
+        <h1>Lista de cursos</h1>
+        <p class="lead">
+          Aqui puedes explorar la demo local de cursos mientras el backend aun
+          no esta conectado.
+        </p>
+      </section>
+
+      <section class="summary-grid" id="summary-grid" aria-label="Resumen"></section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Cursos disponibles</h2>
+            <p id="results-summary">0 cursos visibles</p>
+          </div>
+          <div class="panel-actions">
+            <a class="button button-primary" href="./form.html">Agregar curso</a>
+            <button class="button button-secondary" id="restore-demo-button" type="button">
+              Restaurar demo
+            </button>
+          </div>
+        </div>
+
+        <div class="filters-row">
+          <label class="field">
+            <span>Buscar</span>
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Titulo, instructor o plataforma"
+              autocomplete="off"
+            />
+          </label>
+
+          <label class="field">
+            <span>Categoria</span>
+            <select id="category-select">
+              <option value="Todas">Todas</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="course-list" id="course-list"></div>
+
+        <div class="empty-state" id="empty-state" hidden>
+          <h3>No hay coincidencias</h3>
+          <p>Cambia el filtro o crea un curso nuevo.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

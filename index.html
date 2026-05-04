@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CourseTracker | Inicio</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body data-page="home">
+    <header class="site-header">
+      <div class="container header-row">
+        <a class="brand" href="./index.html">CourseTracker</a>
+        <nav class="site-nav" aria-label="Principal">
+          <a class="nav-link is-active" href="./index.html">Inicio</a>
+          <a class="nav-link" href="./courses.html">Cursos</a>
+          <a class="nav-link" href="./form.html">Nuevo curso</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="intro-block">
+        <p class="section-kicker">Pagina de inicio</p>
+        <h1>Gestiona cursos con una estructura simple y clara.</h1>
+        <p class="lead">
+          Esta es la portada del frontend. Desde aqui puedes entrar a la lista
+          de cursos, revisar el objetivo del proyecto y abrir el formulario para
+          crear nuevos registros.
+        </p>
+      </section>
+
+      <section class="summary-grid" aria-label="Resumen general">
+        <article class="summary-card">
+          <span>Tipo de proyecto</span>
+          <strong>CRUD de cursos</strong>
+        </article>
+        <article class="summary-card">
+          <span>Frontend</span>
+          <strong>HTML, CSS, JS</strong>
+        </article>
+        <article class="summary-card">
+          <span>Estado</span>
+          <strong>Demo local</strong>
+        </article>
+      </section>
+
+      <section class="panel home-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Recorrido del sitio</h2>
+            <p>El flujo principal ahora esta separado por paginas.</p>
+          </div>
+        </div>
+
+        <div class="home-grid">
+          <article class="info-card">
+            <h3>Inicio</h3>
+            <p>Explica el proyecto y muestra accesos directos a las secciones principales.</p>
+          </article>
+          <article class="info-card">
+            <h3>Lista de cursos</h3>
+            <p>Muestra el catalogo local con filtros, resumen y acciones de detalle o edicion.</p>
+          </article>
+          <article class="info-card">
+            <h3>Formulario</h3>
+            <p>Permite crear o editar cursos en una pagina independiente, sin usar modal.</p>
+          </article>
+        </div>
+
+        <div class="panel-actions">
+          <a class="button button-primary" href="./courses.html">Ver cursos</a>
+          <a class="button button-secondary" href="./form.html">Agregar curso</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
