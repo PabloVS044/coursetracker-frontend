@@ -72,14 +72,29 @@
 
             <label class="field">
               <span>Horas</span>
-              <input name="durationHours" type="number" min="1" step="1" required />
+              <input name="duration_hours" type="number" min="1" step="1" />
             </label>
 
             <label class="field">
               <span>Lecciones</span>
               <input name="lessons" type="number" min="1" step="1" required />
             </label>
+
+            <label class="field">
+              <span>Idioma</span>
+              <input name="language" type="text" maxlength="40" required />
+            </label>
           </div>
+
+          <label class="field">
+            <span>Imagen (URL)</span>
+            <input
+              name="image_url"
+              type="url"
+              maxlength="2048"
+              placeholder="https://ejemplo.com/imagen.jpg"
+            />
+          </label>
 
           <label class="field">
             <span>Descripcion</span>

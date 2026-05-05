@@ -37,8 +37,10 @@
     courseForm.elements.namedItem('category').value = currentCourse.category;
     courseForm.elements.namedItem('level').value = currentCourse.level;
     courseForm.elements.namedItem('price').value = currentCourse.price;
-    courseForm.elements.namedItem('durationHours').value = currentCourse.durationHours;
+    courseForm.elements.namedItem('duration_hours').value = currentCourse.duration_hours ?? '';
     courseForm.elements.namedItem('lessons').value = currentCourse.lessons;
+    courseForm.elements.namedItem('language').value = currentCourse.language;
+    courseForm.elements.namedItem('image_url').value = currentCourse.image_url ?? '';
     courseForm.elements.namedItem('description').value = currentCourse.description;
   }
 })();

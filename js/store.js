@@ -10,10 +10,14 @@
       category: 'Frontend',
       level: 'intermediate',
       price: 24.99,
-      durationHours: 18,
+      duration_hours: 18,
       lessons: 42,
+      language: 'English',
       description:
         'Disena interfaces modulares y aprende a estructurar componentes con foco en mantenibilidad.',
+      image_url: '',
+      created_at: '2026-05-05T10:00:00.000Z',
+      updated_at: '2026-05-05T10:00:00.000Z',
     },
     {
       id: 2,
@@ -23,10 +27,14 @@
       category: 'Backend',
       level: 'advanced',
       price: 31.5,
-      durationHours: 14,
+      duration_hours: 14,
       lessons: 30,
+      language: 'Spanish',
       description:
         'Construye servicios REST claros, pequenos y rapidos con Go, rutas y persistencia.',
+      image_url: '',
+      created_at: '2026-05-05T10:05:00.000Z',
+      updated_at: '2026-05-05T10:05:00.000Z',
     },
     {
       id: 3,
@@ -36,10 +44,14 @@
       category: 'Data',
       level: 'beginner',
       price: 19,
-      durationHours: 10,
+      duration_hours: 10,
       lessons: 26,
+      language: 'Spanish',
       description:
         'Practica consultas reales, agregaciones y reportes para analisis de datos y dashboards.',
+      image_url: '',
+      created_at: '2026-05-05T10:10:00.000Z',
+      updated_at: '2026-05-05T10:10:00.000Z',
     },
     {
       id: 4,
@@ -49,10 +61,14 @@
       category: 'Design',
       level: 'intermediate',
       price: 22,
-      durationHours: 11,
+      duration_hours: 11,
       lessons: 21,
+      language: 'English',
       description:
         'Aprende a crear sistemas visuales coherentes para productos digitales y paginas de marketing.',
+      image_url: '',
+      created_at: '2026-05-05T10:15:00.000Z',
+      updated_at: '2026-05-05T10:15:00.000Z',
     },
     {
       id: 5,
@@ -62,10 +78,14 @@
       category: 'Productividad',
       level: 'beginner',
       price: 12,
-      durationHours: 7,
+      duration_hours: 7,
       lessons: 16,
+      language: 'Spanish',
       description:
         'Organiza objetivos, tareas y notas en un flujo simple pensado para estudiantes y creadores.',
+      image_url: '',
+      created_at: '2026-05-05T10:20:00.000Z',
+      updated_at: '2026-05-05T10:20:00.000Z',
     },
     {
       id: 6,
@@ -75,15 +95,42 @@
       category: 'Backend',
       level: 'advanced',
       price: 35,
-      durationHours: 15,
+      duration_hours: 15,
       lessons: 34,
+      language: 'English',
       description:
         'Refuerza capas, validaciones, errores y modularidad para proyectos Node bien mantenidos.',
+      image_url: '',
+      created_at: '2026-05-05T10:25:00.000Z',
+      updated_at: '2026-05-05T10:25:00.000Z',
     },
   ];
 
   function cloneBaseCourses() {
     return JSON.parse(JSON.stringify(baseCourses));
+  }
+
+  function normalizeCourse(course, index = 0) {
+    const now = new Date().toISOString();
+    const durationHours = Number(course.duration_hours ?? course.durationHours ?? 0);
+    const lessons = Number(course.lessons ?? 1);
+
+    return {
+      id: Number(course.id ?? Date.now() + index),
+      title: String(course.title ?? '').trim(),
+      instructor: String(course.instructor ?? '').trim(),
+      platform: String(course.platform ?? '').trim(),
+      category: String(course.category ?? '').trim() || 'Frontend',
+      level: String(course.level ?? 'beginner').trim(),
+      price: Number(course.price ?? 0),
+      duration_hours: Number.isInteger(durationHours) && durationHours > 0 ? durationHours : null,
+      lessons: Number.isInteger(lessons) && lessons > 0 ? lessons : 1,
+      language: String(course.language ?? 'English').trim() || 'English',
+      description: String(course.description ?? '').trim(),
+      image_url: String(course.image_url ?? course.imageUrl ?? '').trim(),
+      created_at: String(course.created_at ?? now),
+      updated_at: String(course.updated_at ?? course.createdAt ?? course.created_at ?? now),
+    };
   }
 
   function loadCourses() {
@@ -95,14 +142,19 @@
 
     try {
       const parsedCourses = JSON.parse(rawCourses);
-      return Array.isArray(parsedCourses) ? parsedCourses : cloneBaseCourses();
+      return Array.isArray(parsedCourses)
+        ? parsedCourses.map((course, index) => normalizeCourse(course, index))
+        : cloneBaseCourses();
     } catch (error) {
       return cloneBaseCourses();
     }
   }
 
   function saveCourses(courses) {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(courses.map((course, index) => normalizeCourse(course, index)))
+    );
   }
 
   function resetCourses() {
@@ -117,20 +169,32 @@
 
   function createCourse(payload) {
     const courses = loadCourses();
+    const timestamp = new Date().toISOString();
     const newCourse = {
       id: Date.now(),
+      created_at: timestamp,
+      updated_at: timestamp,
       ...payload,
     };
 
-    courses.unshift(newCourse);
+    courses.unshift(normalizeCourse(newCourse));
     saveCourses(courses);
-    return newCourse;
+    return courses[0];
   }
 
   function updateCourse(courseId, payload) {
     const numericId = Number(courseId);
+    const timestamp = new Date().toISOString();
     const courses = loadCourses().map((course) =>
-      course.id === numericId ? { ...course, ...payload, id: numericId } : course
+      course.id === numericId
+        ? normalizeCourse({
+            ...course,
+            ...payload,
+            id: numericId,
+            created_at: course.created_at,
+            updated_at: timestamp,
+          })
+        : course
     );
 
     saveCourses(courses);
@@ -170,9 +234,12 @@
       category: String(formData.get('category')).trim(),
       level: String(formData.get('level')).trim(),
       price: Number(formData.get('price')),
-      durationHours: Number(formData.get('durationHours')),
+      duration_hours:
+        formData.get('duration_hours') === '' ? null : Number(formData.get('duration_hours')),
       lessons: Number(formData.get('lessons')),
+      language: String(formData.get('language')).trim(),
       description: String(formData.get('description')).trim(),
+      image_url: String(formData.get('image_url')).trim(),
     };
   }
 

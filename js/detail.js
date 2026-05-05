@@ -24,6 +24,7 @@
         <span>${course.instructor}</span>
         <span>${course.platform}</span>
         <span>${store.formatLevel(course.level)}</span>
+        <span>${course.language}</span>
       </div>
       <p>${course.description}</p>
     </div>
@@ -35,17 +36,32 @@
       </div>
       <div>
         <dt>Duracion</dt>
-        <dd>${course.durationHours} horas</dd>
+        <dd>${course.duration_hours || '-'} horas</dd>
       </div>
       <div>
         <dt>Lecciones</dt>
         <dd>${course.lessons}</dd>
       </div>
       <div>
+        <dt>Idioma</dt>
+        <dd>${course.language}</dd>
+      </div>
+      <div>
         <dt>Categoria</dt>
         <dd>${course.category}</dd>
       </div>
     </dl>
+
+    ${
+      course.image_url
+        ? `
+          <div class="notice-box">
+            <h3>Imagen del curso</h3>
+            <p><a class="text-link" href="${course.image_url}" target="_blank" rel="noreferrer">Abrir imagen configurada</a></p>
+          </div>
+        `
+        : ''
+    }
 
     <div class="detail-actions">
       <a class="button button-primary" href="./form.html?id=${course.id}">Editar curso</a>

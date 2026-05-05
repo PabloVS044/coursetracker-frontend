@@ -222,6 +222,11 @@ button {
   background-color: var(--cream);
 }
 
+.text-link {
+  color: var(--brown-main);
+  text-decoration: underline;
+}
+
 .filters-row {
   display: grid;
   grid-template-columns: 2fr 1fr;

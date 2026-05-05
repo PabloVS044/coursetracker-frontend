@@ -47,7 +47,7 @@
   }
 
   function renderSummary() {
-    const totalHours = state.courses.reduce((sum, course) => sum + course.durationHours, 0);
+    const totalHours = state.courses.reduce((sum, course) => sum + (course.duration_hours || 0), 0);
     const totalPlatforms = new Set(state.courses.map((course) => course.platform)).size;
 
     elements.summaryGrid.innerHTML = `
@@ -82,7 +82,8 @@
 
   function renderCourses() {
     const visibleCourses = state.courses.filter((course) => {
-      const haystack = `${course.title} ${course.instructor} ${course.platform}`.toLowerCase();
+      const haystack =
+        `${course.title} ${course.instructor} ${course.platform} ${course.language}`.toLowerCase();
       const matchesSearch = haystack.includes(state.searchTerm);
       const matchesCategory = state.category === 'Todas' || course.category === state.category;
       return matchesSearch && matchesCategory;
@@ -105,7 +106,8 @@
             <div class="course-meta">
               <span>${course.instructor}</span>
               <span>${course.platform}</span>
-              <span>${store.formatLevel(course.level)} · ${course.durationHours}h</span>
+              <span>${store.formatLevel(course.level)} · ${course.duration_hours || '-'}h</span>
+              <span>${course.lessons} lecciones · ${course.language}</span>
             </div>
             <p>${course.description}</p>
             <div class="course-price">${store.formatPrice(course.price)}</div>
