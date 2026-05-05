@@ -1,4 +1,8 @@
-var API_BASE_URL = window.COURSETRACKER_API_BASE_URL || 'http://localhost:3000';
+var courseTrackerConfig = window.CourseTrackerConfig || {};
+var API_BASE_URL = String(courseTrackerConfig.apiBaseUrl || 'http://localhost:3000').replace(
+  /\/+$/,
+  ''
+);
 
 function createRequestError(message, status, details) {
   var error = new Error(message);
