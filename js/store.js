@@ -1,259 +1,202 @@
-(function () {
-  const STORAGE_KEY = 'coursetracker-demo-courses';
+var API_BASE_URL = window.COURSETRACKER_API_BASE_URL || 'http://localhost:3000';
 
-  const baseCourses = [
-    {
-      id: 1,
-      title: 'React Interface Systems',
-      instructor: 'Camila Mendoza',
-      platform: 'Udemy',
-      category: 'Frontend',
-      level: 'intermediate',
-      price: 24.99,
-      duration_hours: 18,
-      lessons: 42,
-      language: 'English',
-      description:
-        'Disena interfaces modulares y aprende a estructurar componentes con foco en mantenibilidad.',
-      image_url: '',
-      created_at: '2026-05-05T10:00:00.000Z',
-      updated_at: '2026-05-05T10:00:00.000Z',
-    },
-    {
-      id: 2,
-      title: 'Go APIs from Scratch',
-      instructor: 'Mario Sierra',
-      platform: 'Platzi',
-      category: 'Backend',
-      level: 'advanced',
-      price: 31.5,
-      duration_hours: 14,
-      lessons: 30,
-      language: 'Spanish',
-      description:
-        'Construye servicios REST claros, pequenos y rapidos con Go, rutas y persistencia.',
-      image_url: '',
-      created_at: '2026-05-05T10:05:00.000Z',
-      updated_at: '2026-05-05T10:05:00.000Z',
-    },
-    {
-      id: 3,
-      title: 'SQL para Analisis',
-      instructor: 'Laura Benitez',
-      platform: 'Coursera',
-      category: 'Data',
-      level: 'beginner',
-      price: 19,
-      duration_hours: 10,
-      lessons: 26,
-      language: 'Spanish',
-      description:
-        'Practica consultas reales, agregaciones y reportes para analisis de datos y dashboards.',
-      image_url: '',
-      created_at: '2026-05-05T10:10:00.000Z',
-      updated_at: '2026-05-05T10:10:00.000Z',
-    },
-    {
-      id: 4,
-      title: 'Brand and UI Foundations',
-      instructor: 'Sofia Ruiz',
-      platform: 'Domestika',
-      category: 'Design',
-      level: 'intermediate',
-      price: 22,
-      duration_hours: 11,
-      lessons: 21,
-      language: 'English',
-      description:
-        'Aprende a crear sistemas visuales coherentes para productos digitales y paginas de marketing.',
-      image_url: '',
-      created_at: '2026-05-05T10:15:00.000Z',
-      updated_at: '2026-05-05T10:15:00.000Z',
-    },
-    {
-      id: 5,
-      title: 'Notion for Deep Work',
-      instructor: 'Adrian Rojas',
-      platform: 'Skillshare',
-      category: 'Productividad',
-      level: 'beginner',
-      price: 12,
-      duration_hours: 7,
-      lessons: 16,
-      language: 'Spanish',
-      description:
-        'Organiza objetivos, tareas y notas en un flujo simple pensado para estudiantes y creadores.',
-      image_url: '',
-      created_at: '2026-05-05T10:20:00.000Z',
-      updated_at: '2026-05-05T10:20:00.000Z',
-    },
-    {
-      id: 6,
-      title: 'Node Architecture Patterns',
-      instructor: 'Daniel Castro',
-      platform: 'Frontend Masters',
-      category: 'Backend',
-      level: 'advanced',
-      price: 35,
-      duration_hours: 15,
-      lessons: 34,
-      language: 'English',
-      description:
-        'Refuerza capas, validaciones, errores y modularidad para proyectos Node bien mantenidos.',
-      image_url: '',
-      created_at: '2026-05-05T10:25:00.000Z',
-      updated_at: '2026-05-05T10:25:00.000Z',
-    },
-  ];
+function createRequestError(message, status, details) {
+  var error = new Error(message);
+  error.status = status;
+  error.details = Array.isArray(details) ? details : [];
+  return error;
+}
 
-  function cloneBaseCourses() {
-    return JSON.parse(JSON.stringify(baseCourses));
+function normalizeCourse(course) {
+  if (!course || typeof course !== 'object') {
+    return null;
   }
 
-  function normalizeCourse(course, index = 0) {
-    const now = new Date().toISOString();
-    const durationHours = Number(course.duration_hours ?? course.durationHours ?? 0);
-    const lessons = Number(course.lessons ?? 1);
-
-    return {
-      id: Number(course.id ?? Date.now() + index),
-      title: String(course.title ?? '').trim(),
-      instructor: String(course.instructor ?? '').trim(),
-      platform: String(course.platform ?? '').trim(),
-      category: String(course.category ?? '').trim() || 'Frontend',
-      level: String(course.level ?? 'beginner').trim(),
-      price: Number(course.price ?? 0),
-      duration_hours: Number.isInteger(durationHours) && durationHours > 0 ? durationHours : null,
-      lessons: Number.isInteger(lessons) && lessons > 0 ? lessons : 1,
-      language: String(course.language ?? 'English').trim() || 'English',
-      description: String(course.description ?? '').trim(),
-      image_url: String(course.image_url ?? course.imageUrl ?? '').trim(),
-      created_at: String(course.created_at ?? now),
-      updated_at: String(course.updated_at ?? course.createdAt ?? course.created_at ?? now),
-    };
-  }
-
-  function loadCourses() {
-    const rawCourses = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!rawCourses) {
-      return cloneBaseCourses();
-    }
-
-    try {
-      const parsedCourses = JSON.parse(rawCourses);
-      return Array.isArray(parsedCourses)
-        ? parsedCourses.map((course, index) => normalizeCourse(course, index))
-        : cloneBaseCourses();
-    } catch (error) {
-      return cloneBaseCourses();
-    }
-  }
-
-  function saveCourses(courses) {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(courses.map((course, index) => normalizeCourse(course, index)))
-    );
-  }
-
-  function resetCourses() {
-    const courses = cloneBaseCourses();
-    saveCourses(courses);
-    return courses;
-  }
-
-  function getCourseById(courseId) {
-    return loadCourses().find((course) => course.id === Number(courseId)) || null;
-  }
-
-  function createCourse(payload) {
-    const courses = loadCourses();
-    const timestamp = new Date().toISOString();
-    const newCourse = {
-      id: Date.now(),
-      created_at: timestamp,
-      updated_at: timestamp,
-      ...payload,
-    };
-
-    courses.unshift(normalizeCourse(newCourse));
-    saveCourses(courses);
-    return courses[0];
-  }
-
-  function updateCourse(courseId, payload) {
-    const numericId = Number(courseId);
-    const timestamp = new Date().toISOString();
-    const courses = loadCourses().map((course) =>
-      course.id === numericId
-        ? normalizeCourse({
-            ...course,
-            ...payload,
-            id: numericId,
-            created_at: course.created_at,
-            updated_at: timestamp,
-          })
-        : course
-    );
-
-    saveCourses(courses);
-    return courses.find((course) => course.id === numericId) || null;
-  }
-
-  function deleteCourse(courseId) {
-    const numericId = Number(courseId);
-    const courses = loadCourses().filter((course) => course.id !== numericId);
-    saveCourses(courses);
-  }
-
-  function getCategories(courses) {
-    return ['Todas', ...new Set(courses.map((course) => course.category))];
-  }
-
-  function formatPrice(price) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(Number(price));
-  }
-
-  function formatLevel(level) {
-    return {
-      beginner: 'Beginner',
-      intermediate: 'Intermediate',
-      advanced: 'Advanced',
-    }[level] || level;
-  }
-
-  function buildCourseFormPayload(formData) {
-    return {
-      title: String(formData.get('title')).trim(),
-      instructor: String(formData.get('instructor')).trim(),
-      platform: String(formData.get('platform')).trim(),
-      category: String(formData.get('category')).trim(),
-      level: String(formData.get('level')).trim(),
-      price: Number(formData.get('price')),
-      duration_hours:
-        formData.get('duration_hours') === '' ? null : Number(formData.get('duration_hours')),
-      lessons: Number(formData.get('lessons')),
-      language: String(formData.get('language')).trim(),
-      description: String(formData.get('description')).trim(),
-      image_url: String(formData.get('image_url')).trim(),
-    };
-  }
-
-  window.CourseTrackerStore = {
-    buildCourseFormPayload,
-    createCourse,
-    deleteCourse,
-    formatLevel,
-    formatPrice,
-    getCategories,
-    getCourseById,
-    loadCourses,
-    resetCourses,
-    saveCourses,
-    updateCourse,
+  return {
+    id: Number(course.id),
+    title: String(course.title ?? '').trim(),
+    instructor: String(course.instructor ?? '').trim(),
+    platform: String(course.platform ?? '').trim(),
+    category: String(course.category ?? '').trim() || 'Sin categoria',
+    level: String(course.level ?? '').trim(),
+    price: Number(course.price ?? 0),
+    duration_hours:
+      course.duration_hours === null || course.duration_hours === undefined
+        ? null
+        : Number(course.duration_hours),
+    lessons: Number(course.lessons ?? 0),
+    language: String(course.language ?? '').trim(),
+    description: String(course.description ?? '').trim(),
+    image_url: String(course.image_url ?? '').trim(),
+    created_at: String(course.created_at ?? ''),
+    updated_at: String(course.updated_at ?? ''),
   };
-})();
+}
+
+async function request(path, options) {
+  var requestOptions = options || {};
+  var headers = {
+    Accept: 'application/json',
+  };
+  var response;
+  var contentType;
+  var payload;
+
+  if (requestOptions.body) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  try {
+    response = await window.fetch(API_BASE_URL + path, {
+      method: requestOptions.method || 'GET',
+      headers: headers,
+      body: requestOptions.body || undefined,
+    });
+  } catch (error) {
+    throw createRequestError('No se pudo conectar con el backend', 0, []);
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  contentType = response.headers.get('content-type') || '';
+  payload = contentType.includes('application/json') ? await response.json() : null;
+
+  if (!response.ok) {
+    throw createRequestError(
+      payload && payload.error && payload.error.message
+        ? payload.error.message
+        : 'No se pudo completar la solicitud',
+      response.status,
+      payload && payload.error ? payload.error.details : []
+    );
+  }
+
+  return payload;
+}
+
+function buildListQuery(params) {
+  var query = params || {};
+  var searchParams = new URLSearchParams();
+
+  searchParams.set('page', String(query.page || 1));
+  searchParams.set('limit', String(query.limit || 100));
+  searchParams.set('sort', String(query.sort || 'created_at'));
+  searchParams.set('order', String(query.order || 'desc'));
+
+  if (query.q) {
+    searchParams.set('q', String(query.q).trim());
+  }
+
+  return searchParams.toString();
+}
+
+async function loadCourses(params) {
+  var queryString = buildListQuery(params);
+  var payload = await request('/courses?' + queryString, { method: 'GET' });
+
+  return Array.isArray(payload.data)
+    ? payload.data
+        .map(function mapCourse(course) {
+          return normalizeCourse(course);
+        })
+        .filter(Boolean)
+    : [];
+}
+
+async function getCourseById(courseId) {
+  var payload = await request('/courses/' + encodeURIComponent(courseId), {
+    method: 'GET',
+  });
+
+  return normalizeCourse(payload.data);
+}
+
+async function createCourse(course) {
+  var payload = await request('/courses', {
+    method: 'POST',
+    body: JSON.stringify(course),
+  });
+
+  return normalizeCourse(payload.data);
+}
+
+async function updateCourse(courseId, course) {
+  var payload = await request('/courses/' + encodeURIComponent(courseId), {
+    method: 'PUT',
+    body: JSON.stringify(course),
+  });
+
+  return normalizeCourse(payload.data);
+}
+
+async function deleteCourse(courseId) {
+  await request('/courses/' + encodeURIComponent(courseId), {
+    method: 'DELETE',
+  });
+}
+
+function getCategories(courses) {
+  return ['Todas'].concat(
+    Array.from(
+      new Set(
+        courses
+          .map(function mapCategory(course) {
+            return course.category;
+          })
+          .filter(Boolean)
+      )
+    )
+  );
+}
+
+function formatPrice(price) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(Number(price));
+}
+
+function formatLevel(level) {
+  var labels = {
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced',
+  };
+
+  return labels[level] || level;
+}
+
+function buildCourseFormPayload(formData) {
+  var durationValue = String(formData.get('duration_hours') || '').trim();
+  var descriptionValue = String(formData.get('description') || '').trim();
+  var imageUrlValue = String(formData.get('image_url') || '').trim();
+
+  return {
+    title: String(formData.get('title')).trim(),
+    instructor: String(formData.get('instructor')).trim(),
+    platform: String(formData.get('platform')).trim(),
+    category: String(formData.get('category')).trim(),
+    level: String(formData.get('level')).trim(),
+    price: Number(formData.get('price')),
+    duration_hours: durationValue === '' ? null : Number(durationValue),
+    lessons: Number(formData.get('lessons')),
+    language: String(formData.get('language')).trim(),
+    description: descriptionValue,
+    image_url: imageUrlValue,
+  };
+}
+
+window.CourseStore = {
+  apiBaseUrl: API_BASE_URL,
+  buildCourseFormPayload: buildCourseFormPayload,
+  createCourse: createCourse,
+  deleteCourse: deleteCourse,
+  formatLevel: formatLevel,
+  formatPrice: formatPrice,
+  getCategories: getCategories,
+  getCourseById: getCourseById,
+  loadCourses: loadCourses,
+  updateCourse: updateCourse,
+};

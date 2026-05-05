@@ -22,13 +22,15 @@
 
     <main class="container page-content">
       <section class="intro-block intro-compact">
-        <p class="section-kicker">Edicion local</p>
+        <p class="section-kicker">Formulario conectado</p>
         <h1 id="form-page-title">Nuevo curso</h1>
         <p class="lead">Formulario separado para crear o editar cursos sin usar modal.</p>
       </section>
 
       <section class="panel form-panel">
         <form id="course-form" class="course-form">
+          <div class="notice-box" id="form-feedback" hidden></div>
+
           <div class="form-grid">
             <label class="field">
               <span>Titulo</span>
@@ -98,7 +100,7 @@
 
           <label class="field">
             <span>Descripcion</span>
-            <textarea name="description" rows="6" maxlength="500" required></textarea>
+            <textarea name="description" rows="6" maxlength="5000"></textarea>
           </label>
 
           <div class="form-actions">
