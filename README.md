@@ -13,6 +13,10 @@ Esta aplicación consume una API REST usando únicamente **HTML, CSS y JavaScrip
 
 No se utilizan frameworks ni librerías externas.
 
+## Screenshot
+
+![Screenshot de Courses Tracker](docs/ss.png)
+
 ## Configuracion del backend
 
 El frontend decide automaticamente que backend usar:
