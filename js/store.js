@@ -45,8 +45,10 @@ async function request(path, options) {
   var response;
   var contentType;
   var payload;
+  var isFormDataPayload =
+    typeof window.FormData !== 'undefined' && requestOptions.body instanceof window.FormData;
 
-  if (requestOptions.body) {
+  if (requestOptions.body && !isFormDataPayload) {
     headers['Content-Type'] = 'application/json';
   }
 
@@ -78,6 +80,27 @@ async function request(path, options) {
   }
 
   return payload;
+}
+
+function normalizeUploadedImage(uploadedImage) {
+  if (!uploadedImage || typeof uploadedImage !== 'object') {
+    return null;
+  }
+
+  return {
+    url: String(uploadedImage.url || '').trim(),
+    public_id: String(uploadedImage.public_id || '').trim(),
+    original_filename: String(uploadedImage.original_filename || '').trim(),
+    width:
+      uploadedImage.width === null || uploadedImage.width === undefined
+        ? null
+        : Number(uploadedImage.width),
+    height:
+      uploadedImage.height === null || uploadedImage.height === undefined
+        ? null
+        : Number(uploadedImage.height),
+    format: String(uploadedImage.format || '').trim(),
+  };
 }
 
 function buildListQuery(params) {
@@ -139,6 +162,20 @@ async function deleteCourse(courseId) {
   await request('/courses/' + encodeURIComponent(courseId), {
     method: 'DELETE',
   });
+}
+
+async function uploadCourseImage(file) {
+  var formData = new window.FormData();
+  var payload;
+
+  formData.append('image', file);
+
+  payload = await request('/uploads/image', {
+    method: 'POST',
+    body: formData,
+  });
+
+  return normalizeUploadedImage(payload.data);
 }
 
 function getCategories(courses) {
@@ -221,5 +258,6 @@ window.CourseStore = {
   getCourseInitials: getCourseInitials,
   getCourseById: getCourseById,
   loadCourses: loadCourses,
+  uploadCourseImage: uploadCourseImage,
   updateCourse: updateCourse,
 };

@@ -72,16 +72,30 @@ function bindFormEvents() {
 }
 
 async function handleCourseFormSubmit(event) {
+  var formData;
   var payload;
+  var selectedImageFile;
+  var uploadedImage;
   var savedCourse;
 
   event.preventDefault();
   clearFormFeedback();
-  payload = courseStore.buildCourseFormPayload(new FormData(formElements.form));
+  formData = new FormData(formElements.form);
+  payload = courseStore.buildCourseFormPayload(formData);
+  selectedImageFile = getSelectedImageFile(formData);
 
   setFormBusyState(true, 'Guardando...');
 
   try {
+    if (selectedImageFile) {
+      setFormFeedback('Subiendo imagen a Cloudinary...', false);
+      uploadedImage = await courseStore.uploadCourseImage(selectedImageFile);
+      payload.image_url = uploadedImage && uploadedImage.url ? uploadedImage.url : payload.image_url;
+      formElements.form.elements.namedItem('image_url').value = payload.image_url || '';
+      formElements.form.elements.namedItem('image_file').value = '';
+    }
+
+    setFormFeedback('Guardando curso...', false);
     savedCourse = formCourse
       ? await courseStore.updateCourse(formCourse.id, payload)
       : await courseStore.createCourse(payload);
@@ -92,6 +106,21 @@ async function handleCourseFormSubmit(event) {
   }
 
   window.location.href = './course.html?id=' + savedCourse.id;
+}
+
+function getSelectedImageFile(formData) {
+  var selectedValue = formData.get('image_file');
+
+  if (
+    !selectedValue ||
+    typeof selectedValue === 'string' ||
+    typeof selectedValue.name !== 'string' ||
+    selectedValue.size === 0
+  ) {
+    return null;
+  }
+
+  return selectedValue;
 }
 
 function fillCourseForm(currentCourse) {

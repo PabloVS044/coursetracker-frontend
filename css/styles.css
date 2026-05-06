@@ -404,8 +404,7 @@ textarea:disabled {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 100%;
+  height: 100%;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   overflow: hidden;
   background-color: rgba(51, 64, 69, 0.97);
@@ -466,7 +465,7 @@ textarea:disabled {
   flex-direction: column;
   gap: 12px;
   padding: 0 20px 20px;
-  min-height: 100%;
+  flex: 1 1 auto;
 }
 
 .course-card-topline,
