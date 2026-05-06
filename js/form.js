@@ -2,8 +2,10 @@ var courseStore = window.CourseStore;
 var formElements = {};
 var formCourseId = null;
 var formCourse = null;
+var imagePreviewObjectUrl = null;
 
 document.addEventListener('DOMContentLoaded', initFormPage);
+window.addEventListener('beforeunload', clearImagePreviewObjectUrl);
 
 async function initFormPage() {
   cacheFormElements();
@@ -18,6 +20,7 @@ async function initFormPage() {
   }
 
   bindFormEvents();
+  renderImagePreview();
 }
 
 function cacheFormElements() {
@@ -26,6 +29,10 @@ function cacheFormElements() {
   formElements.cancelLink = document.querySelector('#cancel-link');
   formElements.feedback = document.querySelector('#form-feedback');
   formElements.submitButton = formElements.form.querySelector('button[type="submit"]');
+  formElements.imageUrlInput = formElements.form.elements.namedItem('image_url');
+  formElements.imageFileInput = formElements.form.elements.namedItem('image_file');
+  formElements.imagePreviewFrame = document.querySelector('#image-preview-frame');
+  formElements.imagePreviewNote = document.querySelector('#image-preview-note');
 }
 
 async function loadCourseForEdit(courseId) {
@@ -69,6 +76,8 @@ function prepareEditForm() {
 
 function bindFormEvents() {
   formElements.form.addEventListener('submit', handleCourseFormSubmit);
+  formElements.imageUrlInput.addEventListener('input', handleImageSourceChange);
+  formElements.imageFileInput.addEventListener('change', handleImageSourceChange);
 }
 
 async function handleCourseFormSubmit(event) {
@@ -93,6 +102,7 @@ async function handleCourseFormSubmit(event) {
       payload.image_url = uploadedImage && uploadedImage.url ? uploadedImage.url : payload.image_url;
       formElements.form.elements.namedItem('image_url').value = payload.image_url || '';
       formElements.form.elements.namedItem('image_file').value = '';
+      renderImagePreview();
     }
 
     setFormFeedback('Guardando curso...', false);
@@ -123,6 +133,10 @@ function getSelectedImageFile(formData) {
   return selectedValue;
 }
 
+function handleImageSourceChange() {
+  renderImagePreview();
+}
+
 function fillCourseForm(currentCourse) {
   formElements.form.elements.namedItem('title').value = currentCourse.title;
   formElements.form.elements.namedItem('instructor').value = currentCourse.instructor;
@@ -135,6 +149,61 @@ function fillCourseForm(currentCourse) {
   formElements.form.elements.namedItem('language').value = currentCourse.language;
   formElements.form.elements.namedItem('image_url').value = currentCourse.image_url ?? '';
   formElements.form.elements.namedItem('description').value = currentCourse.description;
+  renderImagePreview();
+}
+
+function renderImagePreview() {
+  var imageFile = getSelectedImageFile(new FormData(formElements.form));
+  var imageUrl = String(formElements.imageUrlInput.value || '').trim();
+
+  clearImagePreviewObjectUrl();
+
+  if (imageFile) {
+    imagePreviewObjectUrl = window.URL.createObjectURL(imageFile);
+    setImagePreview(imagePreviewObjectUrl, 'Vista previa local. Se subira a Cloudinary al guardar.');
+    return;
+  }
+
+  if (imageUrl) {
+    setImagePreview(imageUrl, 'Vista previa usando la URL configurada.');
+    return;
+  }
+
+  resetImagePreview();
+}
+
+function setImagePreview(src, note) {
+  var image = document.createElement('img');
+  image.alt = 'Vista previa de la portada del curso';
+  image.src = src;
+  image.addEventListener('error', handleImagePreviewError, { once: true });
+
+  formElements.imagePreviewFrame.replaceChildren(image);
+  formElements.imagePreviewNote.textContent = note;
+}
+
+function resetImagePreview() {
+  var placeholder = document.createElement('div');
+  placeholder.className = 'image-preview-placeholder';
+  placeholder.textContent =
+    'Selecciona un archivo o pega una URL para ver la portada antes de guardar.';
+
+  formElements.imagePreviewFrame.replaceChildren(placeholder);
+  formElements.imagePreviewNote.textContent = 'Sin imagen seleccionada.';
+}
+
+function clearImagePreviewObjectUrl() {
+  if (!imagePreviewObjectUrl) {
+    return;
+  }
+
+  window.URL.revokeObjectURL(imagePreviewObjectUrl);
+  imagePreviewObjectUrl = null;
+}
+
+function handleImagePreviewError() {
+  resetImagePreview();
+  formElements.imagePreviewNote.textContent = 'No se pudo cargar la imagen de vista previa.';
 }
 
 function buildFormErrorMessage(error) {
