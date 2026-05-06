@@ -73,16 +73,23 @@ function renderDetailError(message) {
 
 function renderDetailCourse() {
   detailElements.panel.innerHTML = `
-    <div class="detail-header">
-      <span class="detail-badge">${detailCourse.category}</span>
-      <h2>${detailCourse.title}</h2>
-      <div class="detail-meta">
-        <span>${detailCourse.instructor}</span>
-        <span>${detailCourse.platform}</span>
-        <span>${courseStore.formatLevel(detailCourse.level)}</span>
-        <span>${detailCourse.language}</span>
+    <div class="detail-hero">
+      ${renderDetailHeroVisual()}
+
+      <div class="detail-header">
+        <div class="detail-topline">
+          <span class="detail-badge">${detailCourse.category}</span>
+          <span class="course-chip">${courseStore.formatLevel(detailCourse.level)}</span>
+        </div>
+        <h2>${detailCourse.title}</h2>
+        <div class="detail-meta">
+          <span>${detailCourse.instructor}</span>
+          <span>${detailCourse.platform}</span>
+          <span>${detailCourse.language}</span>
+          <span>${detailCourse.lessons} lecciones</span>
+        </div>
+        <p>${detailCourse.description || 'Sin descripcion disponible.'}</p>
       </div>
-      <p>${detailCourse.description || 'Sin descripcion disponible.'}</p>
     </div>
 
     <dl class="detail-grid">
@@ -133,6 +140,23 @@ function renderDetailImageBlock() {
           Abrir imagen configurada
         </a>
       </p>
+    </div>
+  `;
+}
+
+function renderDetailHeroVisual() {
+  if (detailCourse.image_url) {
+    return `
+      <div class="detail-visual">
+        <img src="${detailCourse.image_url}" alt="Portada de ${detailCourse.title}" />
+      </div>
+    `;
+  }
+
+  return `
+    <div class="detail-visual detail-visual-placeholder" aria-hidden="true">
+      <span class="detail-visual-initials">${courseStore.getCourseInitials(detailCourse)}</span>
+      <span class="detail-visual-platform">${detailCourse.platform}</span>
     </div>
   `;
 }

@@ -17,7 +17,6 @@ async function initCatalogPage() {
 }
 
 function cacheCatalogElements() {
-  catalogElements.summaryGrid = document.querySelector('#summary-grid');
   catalogElements.resultsSummary = document.querySelector('#results-summary');
   catalogElements.searchInput = document.querySelector('#search-input');
   catalogElements.categorySelect = document.querySelector('#category-select');
@@ -63,35 +62,8 @@ async function handleReloadCoursesClick() {
 }
 
 function renderCatalogPage() {
-  renderCatalogSummary();
   renderCatalogCategoryOptions();
   renderCatalogCourses();
-}
-
-function renderCatalogSummary() {
-  var totalHours = catalogState.courses.reduce(function sumHours(sum, course) {
-    return sum + Number(course.duration_hours || 0);
-  }, 0);
-  var totalPlatforms = new Set(
-    catalogState.courses.map(function mapPlatform(course) {
-      return course.platform;
-    })
-  ).size;
-
-  catalogElements.summaryGrid.innerHTML = `
-    <article class="summary-card">
-      <span>Total de cursos</span>
-      <strong>${catalogState.courses.length}</strong>
-    </article>
-    <article class="summary-card">
-      <span>Horas acumuladas</span>
-      <strong>${totalHours}</strong>
-    </article>
-    <article class="summary-card">
-      <span>Plataformas</span>
-      <strong>${totalPlatforms}</strong>
-    </article>
-  `;
 }
 
 function renderCatalogCategoryOptions() {
@@ -154,22 +126,28 @@ function renderCatalogCourses() {
     .map(function mapCourse(course) {
       return `
         <article class="course-card">
-          <span class="course-badge">${course.category}</span>
-          <h3>${course.title}</h3>
-          <div class="course-meta">
-            <span>${course.instructor}</span>
-            <span>${course.platform}</span>
-            <span>${courseStore.formatLevel(course.level)} · ${course.duration_hours || '-'}h</span>
-            <span>${course.lessons} lecciones · ${course.language}</span>
-          </div>
-          <p>${course.description || 'Sin descripcion disponible.'}</p>
-          <div class="course-price">${courseStore.formatPrice(course.price)}</div>
-          <div class="card-actions">
-            <a class="button button-primary" href="./course.html?id=${course.id}">Ver detalle</a>
-            <a class="button button-secondary" href="./form.html?id=${course.id}">Editar</a>
-            <button class="button button-secondary" type="button" data-delete-id="${course.id}">
-              Eliminar
-            </button>
+          ${renderCatalogCourseVisual(course)}
+          <div class="course-card-body">
+            <div class="course-card-topline">
+              <span class="course-badge">${course.category}</span>
+              <span class="course-chip">${courseStore.formatLevel(course.level)}</span>
+            </div>
+            <h3>${course.title}</h3>
+            <div class="course-meta">
+              <span>${course.instructor}</span>
+              <span>${course.platform}</span>
+              <span>${course.duration_hours || '-'}h · ${course.lessons} lecciones</span>
+              <span>${course.language}</span>
+            </div>
+            <p>${course.description || 'Sin descripcion disponible.'}</p>
+            <div class="course-price">${courseStore.formatPrice(course.price)}</div>
+            <div class="card-actions">
+              <a class="button button-primary" href="./course.html?id=${course.id}">Ver detalle</a>
+              <a class="button button-secondary" href="./form.html?id=${course.id}">Editar</a>
+              <button class="button button-secondary" type="button" data-delete-id="${course.id}">
+                Eliminar
+              </button>
+            </div>
           </div>
         </article>
       `;
@@ -213,4 +191,21 @@ async function handleCatalogDeleteClick(event) {
   } catch (error) {
     window.alert(error.message || 'No se pudo eliminar el curso');
   }
+}
+
+function renderCatalogCourseVisual(course) {
+  if (course.image_url) {
+    return `
+      <div class="course-card-media">
+        <img src="${course.image_url}" alt="Portada de ${course.title}" loading="lazy" />
+      </div>
+    `;
+  }
+
+  return `
+    <div class="course-card-media course-card-media-placeholder" aria-hidden="true">
+      <span class="course-card-initials">${courseStore.getCourseInitials(course)}</span>
+      <span class="course-card-platform">${course.platform}</span>
+    </div>
+  `;
 }

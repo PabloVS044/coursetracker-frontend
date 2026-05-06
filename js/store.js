@@ -172,6 +172,24 @@ function formatLevel(level) {
   return labels[level] || level;
 }
 
+function getCourseInitials(course) {
+  var source = String((course && course.title) || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  if (source.length === 0) {
+    return 'CT';
+  }
+
+  return source
+    .map(function mapWord(word) {
+      return word.charAt(0).toUpperCase();
+    })
+    .join('');
+}
+
 function buildCourseFormPayload(formData) {
   var durationValue = String(formData.get('duration_hours') || '').trim();
   var descriptionValue = String(formData.get('description') || '').trim();
@@ -200,6 +218,7 @@ window.CourseStore = {
   formatLevel: formatLevel,
   formatPrice: formatPrice,
   getCategories: getCategories,
+  getCourseInitials: getCourseInitials,
   getCourseById: getCourseById,
   loadCourses: loadCourses,
   updateCourse: updateCourse,
